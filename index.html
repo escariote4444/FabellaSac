@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FabellaSac</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hidden" id="appHeader">
+  <div class="topbar">
+    <div class="logo" onclick="go('compras')">FabellaSac</div>
+    <div class="navwrap">
+      <button class="navbtn" onclick="document.getElementById('menu').classList.toggle('open')">☰ Menú</button>
+      <div class="menu" id="menu">
+        <button onclick="go('cuenta')">👤 Mi cuenta</button>
+        <button onclick="go('compras')">🛍️ Mis compras</button>
+        <button onclick="go('reportes')">📋 Mis reportes</button>
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- LOGIN -->
+<section id="view-login" class="card" style="max-width:380px;margin:60px auto">
+  <h2 style="text-align:center">FabellaSac</h2>
+  <p class="notice">Sitio de demostración. No ingreses datos reales.</p>
+  <label>Correo</label><input id="loginEmail" type="text" placeholder="correo@ejemplo.com">
+  <label>Contraseña</label><input id="loginPass" type="password" placeholder="••••••">
+  <button class="btn block" style="margin-top:16px" onclick="doLogin()">Iniciar sesión</button>
+  <p style="text-align:center;margin-top:14px">¿No tienes cuenta? <span class="link" onclick="go('registro')">Crear cuenta</span></p>
+</section>
+
+<!-- REGISTRO -->
+<section id="view-registro" class="card hidden" style="max-width:480px;margin:40px auto">
+  <h2>Crear cuenta</h2>
+  <h3 style="margin-bottom:0">Datos básicos</h3>
+  <div class="row">
+    <div><label>Nombres</label><input id="regNombres"></div>
+    <div><label>Apellidos</label><input id="regApellidos"></div>
+  </div>
+  <div class="row">
+    <div><label>DNI</label><input id="regDni"></div>
+    <div><label>Celular</label><input id="regCel"></div>
+  </div>
+  <label>Correo</label><input id="regEmail">
+  <label>Contraseña</label><input id="regPass" type="password">
+  <h3>Método de pago (opcional)</h3>
+  <p class="notice">Entorno de prueba: ingresa cualquier dato, no se procesa ningún cobro real.</p>
+  <div class="row">
+    <div><label>Tipo</label><select id="payTipo"><option>Tarjeta de débito</option><option>Tarjeta de crédito</option></select></div>
+    <div><label>Banco</label><input id="payBanco" placeholder="Cualquier banco"></div>
+  </div>
+  <label>Número de tarjeta</label><input id="payNum" placeholder="0000 0000 0000 0000" maxlength="19">
+  <div class="row">
+    <div><label>Vencimiento (MM/AA)</label><input id="payVenc" placeholder="MM/AA" maxlength="5"></div>
+    <div><label>CVV</label><input id="payCvv" placeholder="123" maxlength="4"></div>
+  </div>
+  <button class="btn block" style="margin-top:16px" onclick="doRegister()">Crear cuenta</button>
+  <p style="text-align:center;margin-top:14px"><span class="link" onclick="go('login')">Ya tengo cuenta</span></p>
+</section>
+
+<!-- MIS COMPRAS -->
+<section id="view-compras" class="card hidden">
+  <h2>Mis compras</h2>
+  <p class="notice">Agrega productos a tu gusto (catálogo de ejemplo).</p>
+  <div class="grid-products" id="catalogo"></div>
+  <h3>Mi carrito / compras agregadas</h3>
+  <div id="carrito"><p class="notice">Aún no agregaste nada.</p></div>
+</section>
+
+<!-- MI CUENTA -->
+<section id="view-cuenta" class="card hidden">
+  <h2>Mi cuenta</h2>
+  <h3 style="margin-bottom:0">Datos básicos</h3>
+  <div class="row">
+    <div><label>Nombres</label><input id="ctNombres"></div>
+    <div><label>Apellidos</label><input id="ctApellidos"></div>
+  </div>
+  <div class="row">
+    <div><label>DNI</label><input id="ctDni"></div>
+    <div><label>Celular</label><input id="ctCel"></div>
+  </div>
+  <label>Correo</label><input id="ctEmail">
+  <h3>Método de pago</h3>
+  <p class="notice">Entorno de prueba: puedes registrar o actualizar cualquier dato de tarjeta, no se procesa ningún cobro real.</p>
+  <div class="row">
+    <div><label>Tipo</label><select id="ctPayTipo"><option>Tarjeta de débito</option><option>Tarjeta de crédito</option></select></div>
+    <div><label>Banco</label><input id="ctPayBanco" placeholder="Cualquier banco"></div>
+  </div>
+  <label>Número de tarjeta</label><input id="ctPayNum" placeholder="0000 0000 0000 0000" maxlength="19">
+  <div class="row">
+    <div><label>Vencimiento (MM/AA)</label><input id="ctPayVenc" placeholder="MM/AA" maxlength="5"></div>
+    <div><label>CVV</label><input id="ctPayCvv" placeholder="123" maxlength="4"></div>
+  </div>
+  <button class="btn block" style="margin-top:16px" onclick="guardarCuenta()">Guardar cambios</button>
+  <p id="ctMsg" class="notice hidden">Datos actualizados correctamente.</p>
+</section>
+
+<!-- MIS REPORTES HUB -->
+<section id="view-reportes" class="card hidden">
+  <h2>Mis reportes</h2>
+  <div class="row">
+    <button class="btn" onclick="go('nuevoReporte')">➕ Nuevo reporte</button>
+    <button class="btn secondary" onclick="go('seguimiento')">🔍 Seguimiento de reportes</button>
+    <button class="btn secondary" onclick="go('notificaciones')">🔔 Notificaciones</button>
+  </div>
+</section>
+
+<!-- NUEVO REPORTE -->
+<section id="view-nuevoReporte" class="card hidden">
+  <h2>Nuevo reporte</h2>
+  <label>Tipo de reclamo</label>
+  <div class="radiogroup" id="tiposReclamo"></div>
+  <label>Descripción</label>
+  <textarea id="repDesc" placeholder="Describe tu caso con el mayor detalle posible..."></textarea>
+  <label>Adjuntos (fotos, videos o documentos)</label>
+  <input type="file" id="repAdj" multiple>
+  <button class="btn block" style="margin-top:16px" onclick="enviarReporte()">Enviar reporte</button>
+  <p><span class="link" onclick="go('reportes')">← Volver</span></p>
+</section>
+
+<!-- SEGUIMIENTO -->
+<section id="view-seguimiento" class="card hidden">
+  <h2>Seguimiento de reportes</h2>
+  <div id="listaSeguimiento"></div>
+  <p><span class="link" onclick="go('reportes')">← Volver</span></p>
+</section>
+
+<!-- NOTIFICACIONES -->
+<section id="view-notificaciones" class="card hidden">
+  <h2>Notificaciones</h2>
+  <div id="listaNotif"></div>
+  <p><span class="link" onclick="go('reportes')">← Volver</span></p>
+</section>
+
+</main>
+
+<div class="overlay" id="ticketOverlay">
+  <div class="modal">
+    <h3>✅ Su reporte ha sido enviado</h3>
+    <p>Su número de ticket es:</p>
+    <p class="ticket" id="ticketNum" style="font-size:1.4em"></p>
+    <button class="btn" onclick="closeOverlay()">Entendido</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
