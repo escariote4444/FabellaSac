@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FabellaSac</title>
+<style>
+:root{
+  --bg:#f4f5f7;--surface:#fff;--text:#1a1a1a;--muted:#666;--border:#e1e3e8;
+  --brand:#7a2e8a;--brand-dark:#5c1f69;--accent:#f2994a;--ok:#2e9e5b;--danger:#d93838;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#15151a;--surface:#1f1f26;--text:#eee;--muted:#aaa;--border:#333;}
+}
+:root[data-theme="dark"]{--bg:#15151a;--surface:#1f1f26;--text:#eee;--muted:#aaa;--border:#333;}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+  padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);}
+header{position:sticky;top:0;background:var(--brand);color:#fff;z-index:20;padding:env(safe-area-inset-top,0) 0 0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;max-width:1100px;margin:0 auto;}
+.logo{font-weight:800;font-size:1.3em;letter-spacing:.5px;cursor:pointer}
+.navwrap{position:relative}
+.navbtn{background:rgba(255,255,255,.15);border:none;color:#fff;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:.95em;display:flex;gap:6px;align-items:center}
+.menu{position:absolute;right:0;top:110%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);min-width:190px;display:none;overflow:hidden;z-index:30}
+.menu.open{display:block}
+.menu button{width:100%;text-align:left;background:none;border:none;padding:12px 16px;cursor:pointer;color:var(--text);font-size:.95em;border-bottom:1px solid var(--border)}
+.menu button:last-child{border-bottom:none}
+.menu button:hover{background:var(--bg)}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+h2{margin-top:0}
+label{display:block;font-size:.85em;color:var(--muted);margin:12px 0 4px}
+input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:1em}
+textarea{min-height:120px;resize:vertical}
+.btn{background:var(--brand);color:#fff;border:none;padding:11px 20px;border-radius:24px;cursor:pointer;font-weight:600;font-size:.95em}
+.btn:hover{background:var(--brand-dark)}
+.btn.secondary{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.btn.block{width:100%}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.row > *{flex:1;min-width:200px}
+.hidden{display:none !important}
+.radiogroup label{display:flex;gap:8px;align-items:center;font-weight:500;color:var(--text);background:var(--bg);border:1px solid var(--border);padding:10px 12px;border-radius:8px;margin-bottom:8px;cursor:pointer}
+.radiogroup input{width:auto}
+.grid-products{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.product{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.product .ph{font-size:2.2em}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78em;font-weight:600}
+.badge.ok{background:#e4f7eb;color:var(--ok)}
+.badge.wait{background:#fdf0e2;color:var(--accent)}
+.ticket{font-family:monospace;font-weight:700}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;padding:28px;max-width:380px;text-align:center}
+.steps li{margin-bottom:10px;font-size:.92em}
+.notice{font-size:.8em;color:var(--muted);background:var(--bg);border:1px dashed var(--border);padding:8px 12px;border-radius:8px;margin-top:10px}
+.link{color:var(--brand);cursor:pointer;text-decoration:underline;font-size:.9em}
+</style>
+</head>
+<body>
+
+<header class="hidden" id="appHeader">
+  <div class="topbar">
+    <div class="logo" onclick="go('compras')">FabellaSac</div>
+    <div class="navwrap">
+      <button class="navbtn" onclick="document.getElementById('menu').classList.toggle('open')">☰ Menú</button>
+      <div class="menu" id="menu">
+        <button onclick="go('cuenta')">👤 Mi cuenta</button>
+        <button onclick="go('compras')">🛍️ Mis compras</button>
+        <button onclick="go('reportes')">📋 Mis reportes</button>
+        <button onclick="logout()">🚪 Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- LOGIN -->
+<section id="view-login" class="card" style="max-width:380px;margin:60px auto">
+  <h2 style="text-align:center">FabellaSac</h2>
+  <p class="notice">Sitio de demostración. No ingreses datos reales.</p>
+  <label>Correo</label><input id="loginEmail" type="text" placeholder="correo@ejemplo.com">
+  <label>Contraseña</label><input id="loginPass" type="password" placeholder="••••••">
+  <button class="btn block" style="margin-top:16px" onclick="doLogin()">Iniciar sesión</button>
+  <p style="text-align:center;margin-top:14px">¿No tienes cuenta? <span class="link" onclick="go('registro')">Crear cuenta</span></p>
+</section>
+
+<!-- REGISTRO -->
+<section id="view-registro" class="card hidden" style="max-width:480px;margin:40px auto">
+  <h2>Crear cuenta</h2>
+  <h3 style="margin-bottom:0">Datos básicos</h3>
+  <div class="row">
+    <div><label>Nombres</label><input id="regNombres"></div>
+    <div><label>Apellidos</label><input id="regApellidos"></div>
+  </div>
+  <div class="row">
+    <div><label>DNI</label><input id="regDni"></div>
+    <div><label>Celular</label><input id="regCel"></div>
+  </div>
+  <label>Correo</label><input id="regEmail">
+  <label>Contraseña</label><input id="regPass" type="password">
+  <h3>Método de pago (opcional)</h3>
+  <p class="notice">Entorno de prueba: ingresa cualquier dato, no se procesa ningún cobro real.</p>
+  <div class="row">
+    <div><label>Tipo</label><select id="payTipo"><option>Tarjeta de débito</option><option>Tarjeta de crédito</option></select></div>
+    <div><label>Banco</label><input id="payBanco" placeholder="Cualquier banco"></div>
+  </div>
+  <label>Número de tarjeta</label><input id="payNum" placeholder="0000 0000 0000 0000" maxlength="19">
+  <div class="row">
+    <div><label>Vencimiento (MM/AA)</label><input id="payVenc" placeholder="MM/AA" maxlength="5"></div>
+    <div><label>CVV</label><input id="payCvv" placeholder="123" maxlength="4"></div>
+  </div>
+  <button class="btn block" style="margin-top:16px" onclick="doRegister()">Crear cuenta</button>
+  <p style="text-align:center;margin-top:14px"><span class="link" onclick="go('login')">Ya tengo cuenta</span></p>
+</section>
+
+<!-- MIS COMPRAS -->
+<section id="view-compras" class="card hidden">
+  <h2>Mis compras</h2>
+  <p class="notice">Agrega productos a tu gusto (catálogo de ejemplo).</p>
+  <div class="grid-products" id="catalogo"></div>
+  <h3>Mi carrito / compras agregadas</h3>
+  <div id="carrito"><p class="notice">Aún no agregaste nada.</p></div>
+</section>
+
+<!-- MI CUENTA -->
+<section id="view-cuenta" class="card hidden">
+  <h2>Mi cuenta</h2>
+  <h3 style="margin-bottom:0">Datos básicos</h3>
+  <div class="row">
+    <div><label>Nombres</label><input id="ctNombres"></div>
+    <div><label>Apellidos</label><input id="ctApellidos"></div>
+  </div>
+  <div class="row">
+    <div><label>DNI</label><input id="ctDni"></div>
+    <div><label>Celular</label><input id="ctCel"></div>
+  </div>
+  <label>Correo</label><input id="ctEmail">
+  <h3>Método de pago</h3>
+  <p class="notice">Entorno de prueba: puedes registrar o actualizar cualquier dato de tarjeta, no se procesa ningún cobro real.</p>
+  <div class="row">
+    <div><label>Tipo</label><select id="ctPayTipo"><option>Tarjeta de débito</option><option>Tarjeta de crédito</option></select></div>
+    <div><label>Banco</label><input id="ctPayBanco" placeholder="Cualquier banco"></div>
+  </div>
+  <label>Número de tarjeta</label><input id="ctPayNum" placeholder="0000 0000 0000 0000" maxlength="19">
+  <div class="row">
+    <div><label>Vencimiento (MM/AA)</label><input id="ctPayVenc" placeholder="MM/AA" maxlength="5"></div>
+    <div><label>CVV</label><input id="ctPayCvv" placeholder="123" maxlength="4"></div>
+  </div>
+  <button class="btn block" style="margin-top:16px" onclick="guardarCuenta()">Guardar cambios</button>
+  <p id="ctMsg" class="notice hidden">Datos actualizados correctamente.</p>
+</section>
+
+<!-- MIS REPORTES HUB -->
+<section id="view-reportes" class="card hidden">
+  <h2>Mis reportes</h2>
+  <div class="row">
+    <button class="btn" onclick="go('nuevoReporte')">➕ Nuevo reporte</button>
+    <button class="btn secondary" onclick="go('seguimiento')">🔍 Seguimiento de reportes</button>
+    <button class="btn secondary" onclick="go('notificaciones')">🔔 Notificaciones</button>
+  </div>
+</section>
+
+<!-- NUEVO REPORTE -->
+<section id="view-nuevoReporte" class="card hidden">
+  <h2>Nuevo reporte</h2>
+  <label>Tipo de reclamo</label>
+  <div class="radiogroup" id="tiposReclamo"></div>
+  <label>Descripción</label>
+  <textarea id="repDesc" placeholder="Describe tu caso con el mayor detalle posible..."></textarea>
+  <label>Adjuntos (fotos, videos o documentos)</label>
+  <input type="file" id="repAdj" multiple>
+  <button class="btn block" style="margin-top:16px" onclick="enviarReporte()">Enviar reporte</button>
+  <p><span class="link" onclick="go('reportes')">← Volver</span></p>
+</section>
+
+<!-- SEGUIMIENTO -->
+<section id="view-seguimiento" class="card hidden">
+  <h2>Seguimiento de reportes</h2>
+  <div id="listaSeguimiento"></div>
+  <p><span class="link" onclick="go('reportes')">← Volver</span></p>
+</section>
+
+<!-- NOTIFICACIONES -->
+<section id="view-notificaciones" class="card hidden">
+  <h2>Notificaciones</h2>
+  <div id="listaNotif"></div>
+  <p><span class="link" onclick="go('reportes')">← Volver</span></p>
+</section>
+
+</main>
+
+<div class="overlay" id="ticketOverlay">
+  <div class="modal">
+    <h3>✅ Su reporte ha sido enviado</h3>
+    <p>Su número de ticket es:</p>
+    <p class="ticket" id="ticketNum" style="font-size:1.4em"></p>
+    <button class="btn" onclick="closeOverlay()">Entendido</button>
+  </div>
+</div>
+
+<script>
+const TIPOS = ["Tarjeta bancaria bloqueada","Consumo no reconocido","Posible fraude bancario","Dinero descontado sin autorización","Transferencia no reconocida","Robo o pérdida de tarjeta","Cuenta bancaria comprometida","Solicitud de devolución de dinero","Retraso en un reembolso","Cobro duplicado","Error en el monto de una compra","Reclamo por comisión cobrada","Problemas con una transacción pendiente","Consulta sobre horarios de atención","Información sobre productos","Consulta sobre promociones","Solicitud de información de servicios","Dudas sobre el estado de una solicitud","Consulta sobre requisitos de atención","Otros"];
+const PRODUCTOS = [["👕","Polo básico","S/39"],["👟","Zapatillas urbanas","S/149"],["🎧","Audífonos BT","S/89"],["🧴","Set de limpieza","S/25"],["📺","TV 43'' 4K","S/1299"],["🧳","Maleta de viaje","S/179"]];
+const ESTADOS = [
+ ["Reporte enviado","Tu reporte fue recibido y está en cola de revisión.","wait"],
+ ["En revisión","Un agente está evaluando los detalles de tu caso.","wait"],
+ ["Información adicional solicitada","Se requieren datos o adjuntos extra para continuar.","wait"],
+ ["Resuelto","Tu caso fue cerrado con una solución aplicada.","ok"]
+];
+
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+let session = load('fs_session', null);
+let reportes = load('fs_reportes', []);
+let carrito = load('fs_carrito', []);
+
+function go(view){
+  document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('view-'+view).classList.remove('hidden');
+  document.getElementById('menu').classList.remove('open');
+  if(view==='cuenta') renderCuenta();
+  if(view==='compras') renderCompras();
+  if(view==='nuevoReporte') renderTipos();
+  if(view==='seguimiento') renderSeguimiento();
+  if(view==='notificaciones') renderNotif();
+}
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  if(!email || !pass){ alert('Ingresa un correo y contraseña (pueden ser cualquiera).'); return; }
+  session = load('fs_perfil', null) || {nombres:'Cliente',apellidos:'Demo',dni:'-',celular:'-',email:email};
+  save('fs_session', true);
+  document.getElementById('appHeader').classList.remove('hidden');
+  go('compras');
+}
+
+function doRegister(){
+  const perfil = {
+    nombres: document.getElementById('regNombres').value,
+    apellidos: document.getElementById('regApellidos').value,
+    dni: document.getElementById('regDni').value,
+    celular: document.getElementById('regCel').value,
+    email: document.getElementById('regEmail').value,
+    pago: {
+      tipo: document.getElementById('payTipo').value,
+      banco: document.getElementById('payBanco').value,
+      num: document.getElementById('payNum').value,
+      venc: document.getElementById('payVenc').value,
+      cvv: document.getElementById('payCvv').value
+    }
+  };
+  save('fs_perfil', perfil);
+  session = perfil;
+  save('fs_session', true);
+  document.getElementById('appHeader').classList.remove('hidden');
+  go('compras');
+}
+
+function logout(){
+  save('fs_session', false);
+  document.getElementById('appHeader').classList.add('hidden');
+  go('login');
+}
+
+function renderCuenta(){
+  const p = load('fs_perfil', session||{});
+  document.getElementById('ctNombres').value = p.nombres||'';
+  document.getElementById('ctApellidos').value = p.apellidos||'';
+  document.getElementById('ctDni').value = p.dni||'';
+  document.getElementById('ctCel').value = p.celular||'';
+  document.getElementById('ctEmail').value = p.email||'';
+  const pg = p.pago || {};
+  document.getElementById('ctPayTipo').value = pg.tipo || 'Tarjeta de débito';
+  document.getElementById('ctPayBanco').value = pg.banco || '';
+  document.getElementById('ctPayNum').value = pg.num || '';
+  document.getElementById('ctPayVenc').value = pg.venc || '';
+  document.getElementById('ctPayCvv').value = pg.cvv || '';
+  document.getElementById('ctMsg').classList.add('hidden');
+}
+
+function guardarCuenta(){
+  const perfil = {
+    nombres: document.getElementById('ctNombres').value,
+    apellidos: document.getElementById('ctApellidos').value,
+    dni: document.getElementById('ctDni').value,
+    celular: document.getElementById('ctCel').value,
+    email: document.getElementById('ctEmail').value,
+    pago: {
+      tipo: document.getElementById('ctPayTipo').value,
+      banco: document.getElementById('ctPayBanco').value,
+      num: document.getElementById('ctPayNum').value,
+      venc: document.getElementById('ctPayVenc').value,
+      cvv: document.getElementById('ctPayCvv').value
+    }
+  };
+  save('fs_perfil', perfil);
+  session = perfil;
+  const msg = document.getElementById('ctMsg');
+  msg.classList.remove('hidden');
+}
+
+function renderCompras(){
+  document.getElementById('catalogo').innerHTML = PRODUCTOS.map((pr,i)=>`
+    <div class="product"><div class="ph">${pr[0]}</div><div><b>${pr[1]}</b></div><div>${pr[2]}</div>
+    <button class="btn secondary" style="margin-top:8px" onclick="agregarCarrito(${i})">Agregar</button></div>`).join('');
+  renderCarrito();
+}
+function agregarCarrito(i){ carrito.push(PRODUCTOS[i]); save('fs_carrito', carrito); renderCarrito(); }
+function renderCarrito(){
+  document.getElementById('carrito').innerHTML = carrito.length ? carrito.map(c=>`<p>${c[0]} ${c[1]} — ${c[2]}</p>`).join('') : '<p class="notice">Aún no agregaste nada.</p>';
+}
+
+function renderTipos(){
+  document.getElementById('tiposReclamo').innerHTML = TIPOS.map((t,i)=>`
+    <label><input type="radio" name="tipoReclamo" value="${t}" ${i===0?'checked':''}> ${t}</label>`).join('');
+}
+
+function enviarReporte(){
+  const tipo = document.querySelector('input[name=tipoReclamo]:checked').value;
+  const desc = document.getElementById('repDesc').value.trim();
+  const files = document.getElementById('repAdj').files.length;
+  if(!desc){ alert('Describe brevemente tu caso antes de enviar.'); return; }
+  const ticket = 'FBS-' + Math.floor(100000+Math.random()*900000);
+  reportes.push({ticket, tipo, desc, adjuntos:files, estado:0, fecha:new Date().toLocaleDateString()});
+  save('fs_reportes', reportes);
+  document.getElementById('ticketNum').textContent = ticket;
+  document.getElementById('ticketOverlay').classList.add('open');
+  document.getElementById('repDesc').value='';
+}
+function closeOverlay(){ document.getElementById('ticketOverlay').classList.remove('open'); go('reportes'); }
+
+function renderSeguimiento(){
+  const el = document.getElementById('listaSeguimiento');
+  if(!reportes.length){ el.innerHTML = '<p class="notice">No tienes reportes aún.</p>'; return; }
+  el.innerHTML = reportes.slice().reverse().map(r=>{
+    const e = ESTADOS[Math.min(r.estado, ESTADOS.length-1)];
+    return `<div class="card" style="margin-bottom:10px">
+      <p class="ticket">${r.ticket} <span class="badge ${e[2]}">${e[0]}</span></p>
+      <p><b>Tipo:</b> ${r.tipo}</p>
+      <p style="color:var(--muted);font-size:.9em">${e[1]}</p>
+      <p style="font-size:.85em;color:var(--muted)">Enviado: ${r.fecha}</p>
+      ${r.estado < ESTADOS.length-1 ? `<button class="btn secondary" onclick="avanzarEstado('${r.ticket}')">Simular avance</button>` : ''}
+    </div>`;
+  }).join('');
+}
+function avanzarEstado(ticket){
+  const r = reportes.find(x=>x.ticket===ticket);
+  if(r) r.estado++;
+  save('fs_reportes', reportes);
+  renderSeguimiento();
+}
+
+function renderNotif(){
+  const el = document.getElementById('listaNotif');
+  if(!reportes.length){ el.innerHTML = '<p class="notice">Sin notificaciones por ahora.</p>'; return; }
+  el.innerHTML = reportes.slice().reverse().map(r=>{
+    const e = ESTADOS[Math.min(r.estado, ESTADOS.length-1)];
+    return `<div class="card" style="margin-bottom:10px"><p><b>${r.ticket}</b> — ${e[0]}</p><p style="font-size:.9em;color:var(--muted)">${e[1]}</p></div>`;
+  }).join('');
+}
+
+// init
+if(session && load('fs_session', false)){
+  document.getElementById('appHeader').classList.remove('hidden');
+  go('compras');
+} else {
+  go('login');
+}
+</script>
+</body>
+</html>
